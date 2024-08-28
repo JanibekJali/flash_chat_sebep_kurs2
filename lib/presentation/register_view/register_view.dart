@@ -21,8 +21,10 @@ class _RegisterViewState extends State<RegisterView> {
   String? email;
   String? password;
   String? userName;
-  UserModel userModel = UserModel();
+
   final users = FirebaseFirestore.instance.collection('users');
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  // final User? currentUser = auth.currentUser;
 
   Future registerEmail() async {
     try {
@@ -45,18 +47,22 @@ class _RegisterViewState extends State<RegisterView> {
 
   Future<DocumentReference<Map<String, dynamic>>> addUser(
       UserCredential userCredential) async {
+    final User user = auth.currentUser!;
+    final uid = user.uid;
+    const menBergenID = 'A1A2A3B4';
     final userModel = UserModel(
       userName: userName!,
-      userId: userCredential.user!.uid,
+      userId: menBergenID,
       email: email,
       password: password,
     );
-
     final userData = await users
-        .add(
-          userModel.toFirebase(),
-        )
-        .then((onValue) => Navigator.push(
+        .doc(menBergenID)
+        .set(userModel.toFirebase(),)
+        // .add(
+        //   userModel.toFirebase(),
+        // )
+        .then((onValue) => Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => HomeView(
@@ -110,7 +116,6 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   onChanged: (value) {
                     email = value;
-                    setState(() {});
                   },
                 ),
               ),
